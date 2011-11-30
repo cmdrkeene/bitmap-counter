@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-describe RedisBitmapDateCounter do
-  let(:counter) { RedisBitmapDateCounter.new("test") }
+describe Bitmap::DateCounter do
+  let(:counter) { Bitmap::DateCounter.new("test") }
 
   before do
     counter.delete
@@ -11,6 +11,14 @@ describe RedisBitmapDateCounter do
     counter.count(1)
     counter.counted?(1).should be_true
     counter.unique.should == 1
+  end
+
+  it "reuses redis connections" do
+    lambda {
+      Bitmap::Counter.new("test")
+      Bitmap::Counter.new("test")
+      Bitmap::DateCounter.new("test")
+    }.should_not change { Bitmap::Counter.redis.info["connected_clients"] }
   end
 
   describe "with multiple days of data" do

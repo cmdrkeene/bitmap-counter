@@ -1,13 +1,32 @@
 require 'spec_helper'
 
-describe RedisBitmapCounter do
-  let(:counter) { RedisBitmapCounter.new("test") }
+describe Bitmap::Counter do
+  let(:counter) { Bitmap::Counter.new("test") }
 
   before do
     counter.delete
     counter.count(1)
     counter.count(3)
     counter.count(7)
+  end
+
+  describe ".redis" do
+    it "uses a supplied redis instance" do
+      counter.counted?(1).should be_true
+
+      other_redis = Redis.new
+      other_redis.select(1)
+
+      Bitmap::Counter.redis = other_redis
+      Bitmap::Counter.redis.should == other_redis
+
+      other_counter = Bitmap::Counter.new("test")
+      other_counter.delete
+
+      other_counter.count(2)
+      other_counter.counted?(1).should be_false
+      other_counter.counted?(2).should be_true
+    end
   end
 
   describe "#unique" do
