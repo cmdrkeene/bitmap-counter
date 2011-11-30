@@ -4,17 +4,25 @@ An efficient id-based counter. Current implementation uses redis.
 
 # Usage
 
+    require "bitmap/counter"
     counter = Bitmap::Counter.new("name")
     
     counter.add(id = 1)   # a numeric user_id for example
     counter.count         # 2
     counter.includes?(1)  # true
     counter.includes?(2)  # false
+
+## Redis
+
+You can use your own redis connection.
+
+    Bitmap::Counter.redis = your_redis_here
     
 ## DateCounter
 
 Count ids for a series of dates.
 
+    require "bitmap/date_counter"
     counter = Bitmap::DateCounter.new("name")
     counter.add(1, Date.today)
     counter.add(2, Date.today)
