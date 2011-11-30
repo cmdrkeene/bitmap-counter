@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.authors     = ["Brandon Keene"]
   s.email       = ["bkeene@gmail.com"]
   s.homepage    = ""
-  s.summary     = %q{Efficient large dataset counters using bitmaps}
+  s.summary     = %q{A unique id counter implemented with redis bitmaps. Count the unique users across a date range.}
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
