@@ -1,0 +1,41 @@
+#!/usr/bin/env ruby
+
+require "benchmark"
+require "hiredis"
+require_relative "../lib/bitmap_counter"
+
+def ms(time)
+  "#{(time * 1000.0).round(2)}ms"
+end
+
+def benchmark_unique(number)
+  counter = Bitmap::Counter.new("benchmark")
+  Bitmap::Counter.redis.pipelined do
+    number.times { |i| counter.count(i) }
+  end
+  time = Benchmark.realtime { counter.unique }
+  puts "unique (#{number}): #{ms(time)}"
+  counter.delete
+end
+
+def benchmark_scard(number)
+  key = "benchmark"
+  Bitmap::Counter.redis.pipelined do
+    number.times { |i| Bitmap::Counter.redis.sadd(key, i) }
+  end
+  time = Benchmark.realtime { Bitmap::Counter.redis.scard(key) }
+  puts "scard  (#{number}): #{ms(time)}"
+  Bitmap::Counter.redis.del(key)
+end
+
+benchmark_unique(1_000)
+benchmark_unique(10_000)
+benchmark_unique(100_000)
+# benchmark_unique(1_000_000)
+# benchmark_unique(10_000_000)
+
+benchmark_scard(1_000)
+benchmark_scard(10_000)
+benchmark_scard(100_000)
+# benchmark_scard(1_000_000)
+# benchmark_scard(10_000_000)

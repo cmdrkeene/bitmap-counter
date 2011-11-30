@@ -45,15 +45,50 @@ Or a range of dates:
     counter.includes?(1, (Date.today - 1)..Date.today) # true
     counter.includes?(2, (Date.today - 1)..Date.today) # true
     counter.includes?(3, (Date.today - 1)..Date.today) # false
+
+# Benchmarks
+
+## Memory
+
+Redis doesn't expose easy statistics on memory/disk usage :(
+
+TODO
+
+## Intersections
+
+TODO
+
+## Cardinality
+
+Performance is acceptable, but worse than native redis sets.
+
+Sending the entire bitstring across the wire is not all that efficient.
+
+Some people suggested implementing this a Lua routine inside redis. I suspect
+the performance will be better, but is unlikely to beat native sets.
+
+Totally unscientific, but here are my results:
+
+    Bitmap::Counter.unique (10_000_000 ids): 76.39ms
+    Redis.scard            (10_000_000 ids): 2.38ms
     
-## Credits
+It's not any better for small datasets:
+
+    unique (1000): 0.26ms
+    unique (10000): 0.59ms
+    unique (100000): 0.94ms
+    scard  (1000): 0.19ms
+    scard  (10000): 0.23ms
+    scard  (100000): 0.26ms
+        
+# Credits
 
 Inspired by the awesome [post](http://blog.getspool.com/2011/11/29/fast-easy-realtime-metrics-using-redis-bitmaps/) by Chandra Patni.
         
-## Ruby Version
+# Ruby Version
 
 This was developed on ruby 1.9.2p180 and not tested on other versions...yet :)
 
-## TODO
+# TODO
 
 * Add different backends (File, Postgres, etc)
